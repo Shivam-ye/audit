@@ -1,0 +1,97 @@
+[
+  {
+    "actor": {
+      "id": "user_789",
+      "name": "Amit Kumar",
+      "type": "user"
+    },
+    "verb": "create",
+    "object": {
+      "id": "pay_INR20260204_001234",
+      "type": "payment",
+      "new_fields": {
+        "amount": 2199.00,
+        "currency": "INR",
+        "payment_method": "UPI",
+        "status": "pending",
+        "order_id": "ord_summer2026_789",
+        "customer_id": "cust_amit001",
+        "transaction_id": null,
+        "created_at": "2026-02-04T13:10:15Z",
+        "notes": "Summer Sale - Premium Plan"
+      }
+    },
+    "description": "User initiated UPI payment for order"
+  },
+  {
+    "actor": {
+      "id": "system_razorpay",
+      "name": "Razorpay Webhook",
+      "type": "system"
+    },
+    "verb": "update",
+    "object": {
+      "id": "pay_INR20260204_001234",
+      "type": "payment",
+      "old_fields": {
+        "status": "pending",
+        "transaction_id": null,
+        "updated_at": "2026-02-04T13:10:15Z"
+      },
+      "new_fields": {
+        "status": "succeeded",
+        "transaction_id": "pay_XYZ123abc456def789",
+        "captured_at": "2026-02-04T13:12:48Z",
+        "updated_at": "2026-02-04T13:12:48Z"
+      }
+    },
+    "description": "Payment captured successfully via Razorpay"
+  },
+  {
+    "actor": {
+      "id": "user_789",
+      "name": "Amit Kumar",
+      "type": "user"
+    },
+    "verb": "update",
+    "object": {
+      "id": "pay_INR20260204_001234",
+      "type": "payment",
+      "old_fields": {
+        "status": "succeeded",
+        "refund_amount": 0.00,
+        "refund_status": null
+      },
+      "new_fields": {
+        "status": "revoked",
+        "refund_amount": 2199.00,
+        "refund_status": "initiated",
+        "refund_reason": "customer_cancelled_order",
+        "updated_at": "2026-02-04T14:30:22Z"
+      }
+    },
+    "description": "User cancelled order, full refund initiated"
+  },
+  {
+    "actor": {
+      "id": "system_cleanup",
+      "name": "Daily Cleanup Job",
+      "type": "system"
+    },
+    "verb": "delete",
+    "object": {
+      "id": "pay_INR20260204_001234",
+      "type": "payment",
+      "old_fields": {
+        "status": "revoked",
+        "amount": 2199.00,
+        "currency": "INR",
+        "order_id": "ord_summer2026_789",
+        "customer_id": "cust_amit001",
+        "refund_amount": 2199.00,
+        "refund_status": "initiated"
+      }
+    },
+    "description": "Auto-deleted revoked payment record after 24 hours"
+  }
+]
