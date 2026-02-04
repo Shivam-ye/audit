@@ -1,9 +1,7 @@
-
 from django.contrib import admin
-from django.urls import path
+from django.urls import path, include
 
 urlpatterns = [
-    path('admin/', admin.site.urls),
-#     path("update", update_audit),
-#     path("history/<str:service>", get_history),
+    path("admin/", admin.site.urls),
+    path("audit/", include("audit.urls")),
 ]
