@@ -1,0 +1,125 @@
+# ================================
+# Django
+# ================================
+*.log
+*.pot
+*.pyc
+__pycache__/
+db.sqlite3
+db.sqlite3-journal
+media/
+staticfiles/
+
+# Django migrations (optional – keep if you want versioned migrations)
+# **Remove this block if you commit migrations**
+**/migrations/*.py
+!**/migrations/__init__.py
+
+# ================================
+# Environment / Secrets
+# ================================
+.env
+.env.*
+*.env
+.envrc
+secrets.json
+
+# ================================
+# Python
+# ================================
+*.py[cod]
+*.pyo
+*.pyd
+*.so
+.Python
+pip-log.txt
+pip-delete-this-directory.txt
+.pytest_cache/
+.coverage
+coverage.xml
+htmlcov/
+.tox/
+.nox/
+.cache/
+
+# ================================
+# Virtual Environments
+# ================================
+venv/
+env/
+ENV/
+.venv/
+.virtualenv/
+pipenv/
+poetry.lock
+
+# ================================
+# IDEs / Editors
+# ================================
+.vscode/
+.idea/
+*.iml
+*.swp
+*.swo
+*.swn
+*.bak
+
+# ================================
+# OS Files
+# ================================
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# ================================
+# Node / Frontend (if used)
+# ================================
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# ================================
+# Build / Distribution
+# ================================
+build/
+dist/
+*.egg-info/
+.eggs/
+wheels/
+MANIFEST
+
+# ================================
+# Docker
+# ================================
+.dockerignore
+docker-compose.override.yml
+
+# ================================
+# Celery / Redis
+# ================================
+celerybeat-schedule
+celerybeat.pid
+dump.rdb
+
+# ================================
+# Test / Debug
+# ================================
+.pytest_cache/
+pytestdebug.log
+test-results/
+coverage/
+
+# ================================
+# Logs
+# ================================
+logs/
+*.log
+
+# ================================
+# Temporary Files
+# ================================
+tmp/
+temp/
+
