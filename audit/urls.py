@@ -1,6 +1,7 @@
+# audit/urls.py
 from django.urls import path
-from .views import compare_json
+from .views import activity_stream
 
 urlpatterns = [
-    path("compare/", compare_json),
+    path("activity-stream/", activity_stream, name="activity_stream"),
 ]
