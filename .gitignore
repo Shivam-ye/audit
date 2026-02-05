@@ -1,125 +1,106 @@
-# ================================
-# Django
-# ================================
-*.log
-*.pot
-*.pyc
-__pycache__/
-db.sqlite3
-db.sqlite3-journal
-media/
-staticfiles/
-
-# Django migrations (optional – keep if you want versioned migrations)
-# **Remove this block if you commit migrations**
-**/migrations/*.py
-!**/migrations/__init__.py
-
-# ================================
-# Environment / Secrets
-# ================================
-.env
-.env.*
-*.env
-.envrc
-secrets.json
-
-# ================================
 # Python
-# ================================
+__pycache__/
 *.py[cod]
-*.pyo
-*.pyd
+*$py.class
 *.so
 .Python
 pip-log.txt
 pip-delete-this-directory.txt
-.pytest_cache/
-.coverage
-coverage.xml
-htmlcov/
-.tox/
-.nox/
-.cache/
 
-# ================================
-# Virtual Environments
-# ================================
+# Virtual environments
 venv/
+.venv/
 env/
 ENV/
-.venv/
-.virtualenv/
-pipenv/
-poetry.lock
+*.env               # ← important: never commit secrets!
+.env.local
+.env.development
+.env.test
 
-# ================================
-# IDEs / Editors
-# ================================
-.vscode/
-.idea/
-*.iml
+# Conda environments
+.conda/
+conda-meta/
+envs/
+
+# Django / Web
+*.log
+*.pot
+*.sqlite3           # ← if you ever switch back temporarily
+media/
+staticfiles/        # collected static files (usually generated)
+*.bak
 *.swp
 *.swo
-*.swn
-*.bak
 
-# ================================
-# OS Files
-# ================================
-.DS_Store
-Thumbs.db
-desktop.ini
+# Migrations (sometimes people want to ignore — usually NOT recommended)
+#migrations/
+#*/migrations/*
 
-# ================================
-# Node / Frontend (if used)
-# ================================
-node_modules/
-npm-debug.log*
-yarn-debug.log*
-yarn-error.log*
-pnpm-debug.log*
-
-# ================================
-# Build / Distribution
-# ================================
-build/
-dist/
-*.egg-info/
-.eggs/
-wheels/
-MANIFEST
-
-# ================================
-# Docker
-# ================================
-.dockerignore
-docker-compose.override.yml
-
-# ================================
-# Celery / Redis
-# ================================
-celerybeat-schedule
-celerybeat.pid
-dump.rdb
-
-# ================================
-# Test / Debug
-# ================================
+# Testing & coverage
+htmlcov/
+.coverage
+.coverage.*
+coverage.xml
+*.cover
+*.pytest_cache/
 .pytest_cache/
-pytestdebug.log
-test-results/
+tox/
+nox/
+.cache/
 coverage/
 
-# ================================
-# Logs
-# ================================
-logs/
-*.log
+# IDEs & editors
+.idea/              # PyCharm
+*.iml
+.vscode/            # VS Code
+*.code-workspace
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+!.vscode/extensions.json
 
-# ================================
-# Temporary Files
-# ================================
+# OS generated files
+.DS_Store
+Thumbs.db
+ehthumbs.db
+desktop.ini
+
+# Dependency directories (if you use npm/yarn in frontend sometimes)
+node_modules/
+bower_components/
+
+# Build / dist
+dist/
+build/
+*.egg
+*.egg-info/
+*.eggs/
+MANIFEST
+
+# Jupyter / IPython
+.ipynb_checkpoints/
+*.ipynb_checkpoints
+
+# mypy, pytest, etc.
+.mypy_cache/
+.dmypy.json
+dmypy.json
+
+# Database backups / dumps (if you ever create them)
+*.dump
+*.sql.gz
+*.sql
+
+# Project-specific junk (add your own patterns here)
 tmp/
 temp/
+*.bak.*
+*.tmp
+.DS_Store
+komp-l-11-n.log     # if you have machine-specific logs
 
+# Optional: ignore large files you don't want in git
+*.mov
+*.mp4
+*.zip
+*.rar

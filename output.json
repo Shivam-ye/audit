@@ -1,186 +1,762 @@
 [
     {
-        "id": "a9dec937-47ad-49ff-8c6b-c3c40093c301",
-        "actor": {
-            "id": "user_123",
-            "name": "Jane Doe",
-            "type": "user"
+        "resource": {
+            "type": "payment",
+            "id": "pay_INR20260204_001234"
         },
-        "verb": "create",
-        "object_type": "project",
-        "object_id": "proj_8f9d2c1a-7b3e-4e1a-a5c2-9d8e4f1b62c3",
-        "changes": {
-            "created_at": [
-                null,
-                "2026-02-04T13:40:22Z"
-            ],
-            "name": [
-                null,
-                "Mobile App Redesign"
-            ],
-            "description": [
-                null,
-                "Complete UI/UX overhaul for iOS & Android"
-            ],
-            "status": [
-                null,
-                "planning"
-            ],
-            "owner_id": [
-                null,
-                "user_123"
-            ]
-        },
-        "description": "Created new project",
-        "created_at": "2026-02-04T13:40:22Z",
-        "updated_at": "2026-02-04T08:46:08.090694+00:00"
-    },
-    {
-        "id": "42dcedbb-ee50-4654-8897-e3c96ccafe7c",
-        "actor": {
-            "id": "user_456",
-            "name": "Admin Bot",
-            "type": "service_account"
-        },
-        "verb": "create",
-        "object_type": "team",
-        "object_id": "team_2026_spring",
-        "changes": {
-            "member_count": [
-                null,
-                7
-            ],
-            "slug": [
-                null,
-                "spring-2026"
-            ],
-            "name": [
-                null,
-                "Spring 2026 Core Team"
-            ],
-            "created_by": [
-                null,
-                "user_456"
-            ]
-        },
-        "description": "Created new team via automation",
-        "created_at": "2026-02-04T14:02:19Z",
-        "updated_at": "2026-02-04T08:46:08.090694+00:00"
-    },
-    {
-        "id": "eafc60be-55a9-4362-bbc9-bd40acfde580",
-        "actor": {
-            "id": "user_123",
-            "name": "Jane Doe",
-            "type": "user"
-        },
-        "verb": "update",
-        "object_type": "task",
-        "object_id": "task_9a4e7f2b-1c5d-4f8a-9e3c-6b2d8f1a47e9",
-        "changes": {
-            "due_date": [
-                null,
-                "2026-02-12"
-            ],
-            "updated_at": [
-                null,
-                "2026-02-04T14:55:00Z"
-            ],
-            "assignee_id": [
-                null,
-                "user_123"
-            ],
-            "status": [
-                "todo",
-                "in_progress"
-            ]
-        },
-        "description": "Started working on task and set due date",
-        "created_at": "2026-02-04T14:55:03Z",
-        "updated_at": "2026-02-04T08:46:08.090694+00:00"
-    },
-    {
-        "id": "07826f5f-dc60-46ba-8c78-65f2df9b0616",
         "actor": {
             "id": "user_789",
-            "name": "Mike Chen",
+            "name": "Amit Kumar",
             "type": "user"
         },
-        "verb": "update",
-        "object_type": "user_profile",
-        "object_id": "user_789",
-        "changes": {
-            "bio": [
-                "Frontend dev • React & TypeScript",
-                "Frontend • React • TypeScript • Currently learning Rust"
-            ],
-            "avatar_url": [
-                "https://cdn.example.com/avatars/old-mike.jpg",
-                "https://cdn.example.com/avatars/mike-2026.png"
-            ]
+        "current_update": {
+            "version": 1,
+            "event_id": "d53a3a2d-7df6-45ad-844e-6d43f7db309e",
+            "timestamp": "2026-02-04T12:45:41.225367+00:00",
+            "operation": "create",
+            "changes": {
+                "currency": {
+                    "old": null,
+                    "new": "INR"
+                },
+                "status": {
+                    "old": null,
+                    "new": "pending"
+                },
+                "order_id": {
+                    "old": null,
+                    "new": "ord_summer2026_789"
+                },
+                "amount": {
+                    "old": null,
+                    "new": 2199.0
+                },
+                "notes": {
+                    "old": null,
+                    "new": "Summer Sale - Premium Plan"
+                },
+                "created_at": {
+                    "old": null,
+                    "new": "2026-02-04T13:10:15Z"
+                },
+                "payment_method": {
+                    "old": null,
+                    "new": "UPI"
+                },
+                "customer_id": {
+                    "old": null,
+                    "new": "cust_amit001"
+                },
+                "transaction_id": {
+                    "old": null,
+                    "new": null
+                }
+            },
+            "fields": {
+                "amount": 2199.0,
+                "currency": "INR",
+                "payment_method": "UPI",
+                "status": "pending",
+                "order_id": "ord_summer2026_789",
+                "customer_id": "cust_amit001",
+                "transaction_id": null,
+                "created_at": "2026-02-04T13:10:15Z",
+                "notes": "Summer Sale - Premium Plan"
+            },
+            "summary": "User initiated UPI payment for order"
         },
-        "description": "Updated profile picture and bio",
-        "created_at": "2026-02-04T15:12:47Z",
-        "updated_at": "2026-02-04T08:46:08.090694+00:00"
+        "history_log": [
+            {
+                "version": 1,
+                "event_id": "d53a3a2d-7df6-45ad-844e-6d43f7db309e",
+                "timestamp": "2026-02-04T12:45:41.225367+00:00",
+                "operation": "create",
+                "changes": {
+                    "currency": {
+                        "old": null,
+                        "new": "INR"
+                    },
+                    "status": {
+                        "old": null,
+                        "new": "pending"
+                    },
+                    "order_id": {
+                        "old": null,
+                        "new": "ord_summer2026_789"
+                    },
+                    "amount": {
+                        "old": null,
+                        "new": 2199.0
+                    },
+                    "notes": {
+                        "old": null,
+                        "new": "Summer Sale - Premium Plan"
+                    },
+                    "created_at": {
+                        "old": null,
+                        "new": "2026-02-04T13:10:15Z"
+                    },
+                    "payment_method": {
+                        "old": null,
+                        "new": "UPI"
+                    },
+                    "customer_id": {
+                        "old": null,
+                        "new": "cust_amit001"
+                    },
+                    "transaction_id": {
+                        "old": null,
+                        "new": null
+                    }
+                },
+                "fields": {
+                    "amount": 2199.0,
+                    "currency": "INR",
+                    "payment_method": "UPI",
+                    "status": "pending",
+                    "order_id": "ord_summer2026_789",
+                    "customer_id": "cust_amit001",
+                    "transaction_id": null,
+                    "created_at": "2026-02-04T13:10:15Z",
+                    "notes": "Summer Sale - Premium Plan"
+                },
+                "summary": "User initiated UPI payment for order"
+            }
+        ]
     },
     {
-        "id": "fc11a897-207b-45db-b4af-2f48bb746f73",
-        "actor": {
-            "id": "user_123",
-            "name": "Jane Doe",
-            "type": "user"
+        "resource": {
+            "type": "payment",
+            "id": "pay_INR20260204_001234"
         },
-        "verb": "delete",
-        "object_type": "comment",
-        "object_id": "comment_3849201",
-        "changes": {
-            "author_id": [
-                "user_123",
-                null
-            ],
-            "content": [
-                "This definitely needs more contrast on mobile",
-                null
-            ],
-            "created_at": [
-                "2026-02-03T10:22:15Z",
-                null
-            ]
-        },
-        "description": "Deleted own comment",
-        "created_at": "2026-02-04T15:38:09Z",
-        "updated_at": "2026-02-04T08:46:08.090694+00:00"
-    },
-    {
-        "id": "da5234c9-c176-4720-8ca1-c68d4b7c0990",
         "actor": {
-            "id": "user_999",
-            "name": "System Cleanup",
+            "id": "system_razorpay",
+            "name": "Razorpay Webhook",
             "type": "system"
         },
-        "verb": "delete",
-        "object_type": "invitation",
-        "object_id": "invite_2025-12- expired-001",
-        "changes": {
-            "email": [
-                "old intern@example.com",
-                null
-            ],
-            "created_at": [
-                "2025-12-01T09:00:00Z",
-                null
-            ],
-            "status": [
-                "expired",
-                null
-            ],
-            "expires_at": [
-                "2026-01-15T00:00:00Z",
-                null
-            ]
+        "current_update": {
+            "version": 2,
+            "event_id": "314e6cc8-cc38-4906-b78c-7ad6299436f9",
+            "timestamp": "2026-02-04T12:45:41.225367+00:00",
+            "operation": "update",
+            "changes": {
+                "currency": {
+                    "old": "INR",
+                    "new": null
+                },
+                "updated_at": {
+                    "old": null,
+                    "new": "2026-02-04T13:12:48Z"
+                },
+                "status": {
+                    "old": "pending",
+                    "new": "succeeded"
+                },
+                "order_id": {
+                    "old": "ord_summer2026_789",
+                    "new": null
+                },
+                "captured_at": {
+                    "old": null,
+                    "new": "2026-02-04T13:12:48Z"
+                },
+                "amount": {
+                    "old": 2199.0,
+                    "new": null
+                },
+                "notes": {
+                    "old": "Summer Sale - Premium Plan",
+                    "new": null
+                },
+                "created_at": {
+                    "old": "2026-02-04T13:10:15Z",
+                    "new": null
+                },
+                "payment_method": {
+                    "old": "UPI",
+                    "new": null
+                },
+                "customer_id": {
+                    "old": "cust_amit001",
+                    "new": null
+                },
+                "transaction_id": {
+                    "old": null,
+                    "new": "pay_XYZ123abc456def789"
+                }
+            },
+            "fields": {
+                "status": "succeeded",
+                "transaction_id": "pay_XYZ123abc456def789",
+                "captured_at": "2026-02-04T13:12:48Z",
+                "updated_at": "2026-02-04T13:12:48Z"
+            },
+            "summary": "Payment captured successfully via Razorpay"
         },
-        "description": "Auto-deleted expired invitation",
-        "created_at": "2026-02-04T00:05:01Z",
-        "updated_at": "2026-02-04T08:46:08.090694+00:00"
+        "history_log": [
+            {
+                "version": 1,
+                "event_id": "d53a3a2d-7df6-45ad-844e-6d43f7db309e",
+                "timestamp": "2026-02-04T12:45:41.225367+00:00",
+                "operation": "create",
+                "changes": {
+                    "currency": {
+                        "old": null,
+                        "new": "INR"
+                    },
+                    "status": {
+                        "old": null,
+                        "new": "pending"
+                    },
+                    "order_id": {
+                        "old": null,
+                        "new": "ord_summer2026_789"
+                    },
+                    "amount": {
+                        "old": null,
+                        "new": 2199.0
+                    },
+                    "notes": {
+                        "old": null,
+                        "new": "Summer Sale - Premium Plan"
+                    },
+                    "created_at": {
+                        "old": null,
+                        "new": "2026-02-04T13:10:15Z"
+                    },
+                    "payment_method": {
+                        "old": null,
+                        "new": "UPI"
+                    },
+                    "customer_id": {
+                        "old": null,
+                        "new": "cust_amit001"
+                    },
+                    "transaction_id": {
+                        "old": null,
+                        "new": null
+                    }
+                },
+                "fields": {
+                    "amount": 2199.0,
+                    "currency": "INR",
+                    "payment_method": "UPI",
+                    "status": "pending",
+                    "order_id": "ord_summer2026_789",
+                    "customer_id": "cust_amit001",
+                    "transaction_id": null,
+                    "created_at": "2026-02-04T13:10:15Z",
+                    "notes": "Summer Sale - Premium Plan"
+                },
+                "summary": "User initiated UPI payment for order"
+            },
+            {
+                "version": 2,
+                "event_id": "314e6cc8-cc38-4906-b78c-7ad6299436f9",
+                "timestamp": "2026-02-04T12:45:41.225367+00:00",
+                "operation": "update",
+                "changes": {
+                    "currency": {
+                        "old": "INR",
+                        "new": null
+                    },
+                    "updated_at": {
+                        "old": null,
+                        "new": "2026-02-04T13:12:48Z"
+                    },
+                    "status": {
+                        "old": "pending",
+                        "new": "succeeded"
+                    },
+                    "order_id": {
+                        "old": "ord_summer2026_789",
+                        "new": null
+                    },
+                    "captured_at": {
+                        "old": null,
+                        "new": "2026-02-04T13:12:48Z"
+                    },
+                    "amount": {
+                        "old": 2199.0,
+                        "new": null
+                    },
+                    "notes": {
+                        "old": "Summer Sale - Premium Plan",
+                        "new": null
+                    },
+                    "created_at": {
+                        "old": "2026-02-04T13:10:15Z",
+                        "new": null
+                    },
+                    "payment_method": {
+                        "old": "UPI",
+                        "new": null
+                    },
+                    "customer_id": {
+                        "old": "cust_amit001",
+                        "new": null
+                    },
+                    "transaction_id": {
+                        "old": null,
+                        "new": "pay_XYZ123abc456def789"
+                    }
+                },
+                "fields": {
+                    "status": "succeeded",
+                    "transaction_id": "pay_XYZ123abc456def789",
+                    "captured_at": "2026-02-04T13:12:48Z",
+                    "updated_at": "2026-02-04T13:12:48Z"
+                },
+                "summary": "Payment captured successfully via Razorpay"
+            }
+        ]
+    },
+    {
+        "resource": {
+            "type": "payment",
+            "id": "pay_INR20260204_001234"
+        },
+        "actor": {
+            "id": "user_789",
+            "name": "Amit Kumar",
+            "type": "user"
+        },
+        "current_update": {
+            "version": 3,
+            "event_id": "379f7458-dd39-4c16-88cd-c541ca111bc4",
+            "timestamp": "2026-02-04T12:45:41.225367+00:00",
+            "operation": "update",
+            "changes": {
+                "updated_at": {
+                    "old": "2026-02-04T13:12:48Z",
+                    "new": "2026-02-04T14:30:22Z"
+                },
+                "refund_status": {
+                    "old": null,
+                    "new": "initiated"
+                },
+                "status": {
+                    "old": "succeeded",
+                    "new": "revoked"
+                },
+                "captured_at": {
+                    "old": "2026-02-04T13:12:48Z",
+                    "new": null
+                },
+                "refund_reason": {
+                    "old": null,
+                    "new": "customer_cancelled_order"
+                },
+                "transaction_id": {
+                    "old": "pay_XYZ123abc456def789",
+                    "new": null
+                },
+                "refund_amount": {
+                    "old": null,
+                    "new": 2199.0
+                }
+            },
+            "fields": {
+                "status": "revoked",
+                "refund_amount": 2199.0,
+                "refund_status": "initiated",
+                "refund_reason": "customer_cancelled_order",
+                "updated_at": "2026-02-04T14:30:22Z"
+            },
+            "summary": "User cancelled order, full refund initiated"
+        },
+        "history_log": [
+            {
+                "version": 1,
+                "event_id": "d53a3a2d-7df6-45ad-844e-6d43f7db309e",
+                "timestamp": "2026-02-04T12:45:41.225367+00:00",
+                "operation": "create",
+                "changes": {
+                    "currency": {
+                        "old": null,
+                        "new": "INR"
+                    },
+                    "status": {
+                        "old": null,
+                        "new": "pending"
+                    },
+                    "order_id": {
+                        "old": null,
+                        "new": "ord_summer2026_789"
+                    },
+                    "amount": {
+                        "old": null,
+                        "new": 2199.0
+                    },
+                    "notes": {
+                        "old": null,
+                        "new": "Summer Sale - Premium Plan"
+                    },
+                    "created_at": {
+                        "old": null,
+                        "new": "2026-02-04T13:10:15Z"
+                    },
+                    "payment_method": {
+                        "old": null,
+                        "new": "UPI"
+                    },
+                    "customer_id": {
+                        "old": null,
+                        "new": "cust_amit001"
+                    },
+                    "transaction_id": {
+                        "old": null,
+                        "new": null
+                    }
+                },
+                "fields": {
+                    "amount": 2199.0,
+                    "currency": "INR",
+                    "payment_method": "UPI",
+                    "status": "pending",
+                    "order_id": "ord_summer2026_789",
+                    "customer_id": "cust_amit001",
+                    "transaction_id": null,
+                    "created_at": "2026-02-04T13:10:15Z",
+                    "notes": "Summer Sale - Premium Plan"
+                },
+                "summary": "User initiated UPI payment for order"
+            },
+            {
+                "version": 2,
+                "event_id": "314e6cc8-cc38-4906-b78c-7ad6299436f9",
+                "timestamp": "2026-02-04T12:45:41.225367+00:00",
+                "operation": "update",
+                "changes": {
+                    "currency": {
+                        "old": "INR",
+                        "new": null
+                    },
+                    "updated_at": {
+                        "old": null,
+                        "new": "2026-02-04T13:12:48Z"
+                    },
+                    "status": {
+                        "old": "pending",
+                        "new": "succeeded"
+                    },
+                    "order_id": {
+                        "old": "ord_summer2026_789",
+                        "new": null
+                    },
+                    "captured_at": {
+                        "old": null,
+                        "new": "2026-02-04T13:12:48Z"
+                    },
+                    "amount": {
+                        "old": 2199.0,
+                        "new": null
+                    },
+                    "notes": {
+                        "old": "Summer Sale - Premium Plan",
+                        "new": null
+                    },
+                    "created_at": {
+                        "old": "2026-02-04T13:10:15Z",
+                        "new": null
+                    },
+                    "payment_method": {
+                        "old": "UPI",
+                        "new": null
+                    },
+                    "customer_id": {
+                        "old": "cust_amit001",
+                        "new": null
+                    },
+                    "transaction_id": {
+                        "old": null,
+                        "new": "pay_XYZ123abc456def789"
+                    }
+                },
+                "fields": {
+                    "status": "succeeded",
+                    "transaction_id": "pay_XYZ123abc456def789",
+                    "captured_at": "2026-02-04T13:12:48Z",
+                    "updated_at": "2026-02-04T13:12:48Z"
+                },
+                "summary": "Payment captured successfully via Razorpay"
+            },
+            {
+                "version": 3,
+                "event_id": "379f7458-dd39-4c16-88cd-c541ca111bc4",
+                "timestamp": "2026-02-04T12:45:41.225367+00:00",
+                "operation": "update",
+                "changes": {
+                    "updated_at": {
+                        "old": "2026-02-04T13:12:48Z",
+                        "new": "2026-02-04T14:30:22Z"
+                    },
+                    "refund_status": {
+                        "old": null,
+                        "new": "initiated"
+                    },
+                    "status": {
+                        "old": "succeeded",
+                        "new": "revoked"
+                    },
+                    "captured_at": {
+                        "old": "2026-02-04T13:12:48Z",
+                        "new": null
+                    },
+                    "refund_reason": {
+                        "old": null,
+                        "new": "customer_cancelled_order"
+                    },
+                    "transaction_id": {
+                        "old": "pay_XYZ123abc456def789",
+                        "new": null
+                    },
+                    "refund_amount": {
+                        "old": null,
+                        "new": 2199.0
+                    }
+                },
+                "fields": {
+                    "status": "revoked",
+                    "refund_amount": 2199.0,
+                    "refund_status": "initiated",
+                    "refund_reason": "customer_cancelled_order",
+                    "updated_at": "2026-02-04T14:30:22Z"
+                },
+                "summary": "User cancelled order, full refund initiated"
+            }
+        ]
+    },
+    {
+        "resource": {
+            "type": "payment",
+            "id": "pay_INR20260204_001234"
+        },
+        "actor": {
+            "id": "system_cleanup",
+            "name": "Daily Cleanup Job",
+            "type": "system"
+        },
+        "current_update": {
+            "version": 4,
+            "event_id": "5247f674-ab00-4095-8dc2-96315f3374bf",
+            "timestamp": "2026-02-04T12:45:41.225367+00:00",
+            "operation": "delete",
+            "changes": {
+                "updated_at": {
+                    "old": "2026-02-04T14:30:22Z",
+                    "new": null
+                },
+                "refund_status": {
+                    "old": "initiated",
+                    "new": null
+                },
+                "status": {
+                    "old": "revoked",
+                    "new": null
+                },
+                "refund_reason": {
+                    "old": "customer_cancelled_order",
+                    "new": null
+                },
+                "refund_amount": {
+                    "old": 2199.0,
+                    "new": null
+                }
+            },
+            "fields": {},
+            "summary": "Auto-deleted revoked payment record after 24 hours"
+        },
+        "history_log": [
+            {
+                "version": 1,
+                "event_id": "d53a3a2d-7df6-45ad-844e-6d43f7db309e",
+                "timestamp": "2026-02-04T12:45:41.225367+00:00",
+                "operation": "create",
+                "changes": {
+                    "currency": {
+                        "old": null,
+                        "new": "INR"
+                    },
+                    "status": {
+                        "old": null,
+                        "new": "pending"
+                    },
+                    "order_id": {
+                        "old": null,
+                        "new": "ord_summer2026_789"
+                    },
+                    "amount": {
+                        "old": null,
+                        "new": 2199.0
+                    },
+                    "notes": {
+                        "old": null,
+                        "new": "Summer Sale - Premium Plan"
+                    },
+                    "created_at": {
+                        "old": null,
+                        "new": "2026-02-04T13:10:15Z"
+                    },
+                    "payment_method": {
+                        "old": null,
+                        "new": "UPI"
+                    },
+                    "customer_id": {
+                        "old": null,
+                        "new": "cust_amit001"
+                    },
+                    "transaction_id": {
+                        "old": null,
+                        "new": null
+                    }
+                },
+                "fields": {
+                    "amount": 2199.0,
+                    "currency": "INR",
+                    "payment_method": "UPI",
+                    "status": "pending",
+                    "order_id": "ord_summer2026_789",
+                    "customer_id": "cust_amit001",
+                    "transaction_id": null,
+                    "created_at": "2026-02-04T13:10:15Z",
+                    "notes": "Summer Sale - Premium Plan"
+                },
+                "summary": "User initiated UPI payment for order"
+            },
+            {
+                "version": 2,
+                "event_id": "314e6cc8-cc38-4906-b78c-7ad6299436f9",
+                "timestamp": "2026-02-04T12:45:41.225367+00:00",
+                "operation": "update",
+                "changes": {
+                    "currency": {
+                        "old": "INR",
+                        "new": null
+                    },
+                    "updated_at": {
+                        "old": null,
+                        "new": "2026-02-04T13:12:48Z"
+                    },
+                    "status": {
+                        "old": "pending",
+                        "new": "succeeded"
+                    },
+                    "order_id": {
+                        "old": "ord_summer2026_789",
+                        "new": null
+                    },
+                    "captured_at": {
+                        "old": null,
+                        "new": "2026-02-04T13:12:48Z"
+                    },
+                    "amount": {
+                        "old": 2199.0,
+                        "new": null
+                    },
+                    "notes": {
+                        "old": "Summer Sale - Premium Plan",
+                        "new": null
+                    },
+                    "created_at": {
+                        "old": "2026-02-04T13:10:15Z",
+                        "new": null
+                    },
+                    "payment_method": {
+                        "old": "UPI",
+                        "new": null
+                    },
+                    "customer_id": {
+                        "old": "cust_amit001",
+                        "new": null
+                    },
+                    "transaction_id": {
+                        "old": null,
+                        "new": "pay_XYZ123abc456def789"
+                    }
+                },
+                "fields": {
+                    "status": "succeeded",
+                    "transaction_id": "pay_XYZ123abc456def789",
+                    "captured_at": "2026-02-04T13:12:48Z",
+                    "updated_at": "2026-02-04T13:12:48Z"
+                },
+                "summary": "Payment captured successfully via Razorpay"
+            },
+            {
+                "version": 3,
+                "event_id": "379f7458-dd39-4c16-88cd-c541ca111bc4",
+                "timestamp": "2026-02-04T12:45:41.225367+00:00",
+                "operation": "update",
+                "changes": {
+                    "updated_at": {
+                        "old": "2026-02-04T13:12:48Z",
+                        "new": "2026-02-04T14:30:22Z"
+                    },
+                    "refund_status": {
+                        "old": null,
+                        "new": "initiated"
+                    },
+                    "status": {
+                        "old": "succeeded",
+                        "new": "revoked"
+                    },
+                    "captured_at": {
+                        "old": "2026-02-04T13:12:48Z",
+                        "new": null
+                    },
+                    "refund_reason": {
+                        "old": null,
+                        "new": "customer_cancelled_order"
+                    },
+                    "transaction_id": {
+                        "old": "pay_XYZ123abc456def789",
+                        "new": null
+                    },
+                    "refund_amount": {
+                        "old": null,
+                        "new": 2199.0
+                    }
+                },
+                "fields": {
+                    "status": "revoked",
+                    "refund_amount": 2199.0,
+                    "refund_status": "initiated",
+                    "refund_reason": "customer_cancelled_order",
+                    "updated_at": "2026-02-04T14:30:22Z"
+                },
+                "summary": "User cancelled order, full refund initiated"
+            },
+            {
+                "version": 4,
+                "event_id": "5247f674-ab00-4095-8dc2-96315f3374bf",
+                "timestamp": "2026-02-04T12:45:41.225367+00:00",
+                "operation": "delete",
+                "changes": {
+                    "updated_at": {
+                        "old": "2026-02-04T14:30:22Z",
+                        "new": null
+                    },
+                    "refund_status": {
+                        "old": "initiated",
+                        "new": null
+                    },
+                    "status": {
+                        "old": "revoked",
+                        "new": null
+                    },
+                    "refund_reason": {
+                        "old": "customer_cancelled_order",
+                        "new": null
+                    },
+                    "refund_amount": {
+                        "old": 2199.0,
+                        "new": null
+                    }
+                },
+                "fields": {},
+                "summary": "Auto-deleted revoked payment record after 24 hours"
+            }
+        ]
     }
 ]

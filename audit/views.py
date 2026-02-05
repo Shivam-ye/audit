@@ -1,24 +1,19 @@
 import json
 import uuid
 from typing import Dict, Any
+
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 from django.utils import timezone
+from django.core.cache import cache
 import logging
 
-# Setup logging for debugging (production mein file mein log kar sakte ho)
+from .models import AuditHistory
+
 logger = logging.getLogger(__name__)
-logging.basicConfig(level=logging.INFO)
+
 
 def compute_changes(old_fields: Dict[str, Any], new_fields: Dict[str, Any], operation: str) -> Dict[str, Dict[str, Any]]:
-    """
-    Computes changes in {"old": val, "new": val} format.
-    - Only includes changed fields.
-    - For create: old = None for all new fields.
-    - For delete: new = None for all old fields.
-    - Handles nested dicts recursively if needed (for complex objects).
-    - Skips unchanged fields to save storage.
-    """
     changes = {}
     all_keys = set(old_fields.keys()) | set(new_fields.keys())
 
@@ -31,7 +26,6 @@ def compute_changes(old_fields: Dict[str, Any], new_fields: Dict[str, Any], oper
         old_val = old_fields.get(key)
         new_val = new_fields.get(key)
 
-        # Handle nested dicts (recursive for bigger/complex JSON)
         if isinstance(old_val, dict) and isinstance(new_val, dict):
             nested_changes = compute_changes(old_val, new_val, operation)
             if nested_changes:
@@ -42,7 +36,6 @@ def compute_changes(old_fields: Dict[str, Any], new_fields: Dict[str, Any], oper
         if diff:
             changes[key] = diff
 
-    # Operation-specific overrides
     if operation == "create":
         for key in new_fields:
             if key not in changes:
@@ -54,15 +47,15 @@ def compute_changes(old_fields: Dict[str, Any], new_fields: Dict[str, Any], oper
 
     return changes
 
+
 def generate_summary(changes: Dict[str, Dict[str, Any]]) -> str:
-    """
-    Auto-generates a human-readable summary if description not provided.
-    E.g., "Status changed from todo to in_progress and due_date set to 2026-02-12"
-    """
     if not changes:
         return "No changes detected"
     parts = []
     for field, diff in changes.items():
+        if isinstance(diff.get("old"), dict) or "old" not in diff:
+            parts.append(f"{field} updated")
+            continue
         if diff["old"] is None:
             parts.append(f"{field} set to {diff['new']}")
         elif diff["new"] is None:
@@ -71,91 +64,99 @@ def generate_summary(changes: Dict[str, Dict[str, Any]]) -> str:
             parts.append(f"{field} changed from {diff['old']} to {diff['new']}")
     return " and ".join(parts).capitalize()
 
+
 @csrf_exempt
 def activity_stream(request):
     if request.method != "POST":
-        logger.warning("Invalid method: %s", request.method)
         return JsonResponse({"error": "Only POST allowed"}, status=405)
 
     try:
         data = json.loads(request.body)
     except json.JSONDecodeError:
-        logger.error("Invalid JSON in request")
         return JsonResponse({"error": "Invalid JSON"}, status=400)
 
-    # Normalize to list for bulk handling
-    if isinstance(data, dict):
-        activities = [data]
-    elif isinstance(data, list):
-        activities = data
-    else:
-        logger.error("Unsupported payload type")
-        return JsonResponse({"error": "Payload must be dict or list"}, status=400)
-
+    activities = data if isinstance(data, list) else [data]
     if not activities:
         return JsonResponse([], safe=False)
 
-    now = timezone.now().isoformat()
+    now = timezone.now()
     response_list = []
 
     for activity in activities:
-        event_id = str(uuid.uuid4())
-
-        # Extract with validation
         actor = activity.get("actor", {})
-        if not actor.get("id"):
-            logger.warning("Missing actor.id, skipping")
-            continue
-
-        operation = activity.get("verb", "").strip().lower()
-        if operation not in {"create", "update", "delete"}:
-            logger.warning("Invalid operation: %s, defaulting to unknown", operation)
-            operation = "unknown"
-
         obj = activity.get("object", {})
-        if not obj.get("id") or not obj.get("type"):
-            logger.warning("Missing resource id/type, skipping")
+        obj_id = obj.get("id")
+        obj_type = obj.get("type")
+
+        if not actor.get("id") or not obj_id or not obj_type:
+            logger.warning("Missing required fields, skipping")
             continue
 
-        # Handle various input styles flexibly
-        old_fields = obj.get("old_fields") or obj.get("before") or {}
-        new_fields = obj.get("new_fields") or obj.get("after") or {}
-        
-        # Full fields support for create/delete/mixed
-        if "fields" in obj:
-            if operation == "create":
-                new_fields = {**new_fields, **obj["fields"]}
-            elif operation == "delete":
-                old_fields = {**old_fields, **obj["fields"]}
-            else:  # update
-                # Assume fields are new for mixed
-                new_fields = {**new_fields, **obj["fields"]}
+        # Get last known fields from DB
+        last_entry = AuditHistory.objects.filter(
+            resource_type=obj_type,
+            resource_id=obj_id
+        ).order_by('-version').first()
 
-        changes = compute_changes(old_fields, new_fields, operation)
+        last_known_fields = last_entry.full_fields_after if last_entry else {}
 
-        resource = {
-            "type": obj.get("type", ""),
-            "id": obj.get("id", "")
-        }
+        # New fields from request
+        new_input_fields = obj.get("fields") or obj.get("new_fields") or {}
 
+        # Determine operation
+        operation = activity.get("verb", "").strip().lower()
+        if not operation:
+            if not last_known_fields and new_input_fields:
+                operation = "create"
+            elif last_known_fields and not new_input_fields:
+                operation = "delete"
+            else:
+                operation = "update"
+
+        # Compute differences
+        changes = compute_changes(last_known_fields, new_input_fields, operation)
+
+        if not changes and operation != "delete":
+            logger.info("No changes detected for %s, skipping entry", obj_id)
+            continue
+
+        # Summary
         summary = activity.get("description", "").strip() or generate_summary(changes)
 
+        # New version number
+        new_version_number = (last_entry.version + 1) if last_entry else 1
+
+        # Save to PostgreSQL
+        audit_entry = AuditHistory.objects.create(
+            resource_type=obj_type,
+            resource_id=obj_id,
+            version=new_version_number,
+            operation=operation,
+            actor_id=actor.get("id"),
+            actor=actor,
+            timestamp=activity.get("created_at") or now,
+            event_id=uuid.uuid4(),
+            changes=changes,
+            summary=summary,
+            full_fields_after=new_input_fields,
+        )
+
+        # Optional: cache last fields for faster next read
+        cache.set(f"last_fields_{obj_type}_{obj_id}", new_input_fields, timeout=86400 * 7)
+
         response_item = {
-            "event_id": event_id,
-            "timestamp": activity.get("created_at") or now,
-            "actor": {
-                "id": actor.get("id", ""),
-                "name": actor.get("name", ""),
-                "type": actor.get("type", "user")
+            "resource": {"type": obj_type, "id": obj_id},
+            "actor": actor,
+            "current_update": {
+                "version": audit_entry.version,
+                "event_id": str(audit_entry.event_id),
+                "timestamp": audit_entry.timestamp.isoformat(),
+                "operation": audit_entry.operation,
+                "changes": audit_entry.changes,
+                "summary": audit_entry.summary,
             },
-            "operation": operation,
-            "resource": resource,
-            "changes": changes,
-            "summary": summary
         }
 
         response_list.append(response_item)
-        logger.info("Processed activity: %s by %s", operation, actor.get("id"))
 
     return JsonResponse(response_list, safe=False, status=201)
-

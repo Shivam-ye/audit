@@ -76,8 +76,12 @@ WSGI_APPLICATION = 'auditHistory.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': 'auditdb',
+        'USER': 'user',
+        'PASSWORD': 'mypassword123',
+        'HOST': 'localhost',
+        'PORT': '5432',
     }
 }
 
