@@ -1,8 +1,15 @@
 asgiref==3.11.1
+deepdiff==8.6.1
 Django==5.2.10
 django-cors-headers==4.9.0
 djangorestframework==3.16.1
+orderly-set==5.5.0
 packaging @ file:///home/task_176104885106445/conda-bld/packaging_1761049078006/work
+psycopg==3.3.2
+psycopg-binary==3.3.2
+psycopg-pool==3.3.0
 psycopg2==2.9.11
 psycopg2-binary==2.9.11
+psycopg2-pool==1.2
 sqlparse==0.5.5
+typing_extensions==4.15.0
