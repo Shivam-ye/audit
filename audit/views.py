@@ -19,49 +19,61 @@ def flatten_dict(d, parent_key='', sep='.'):
 
 
 def clean_path(path):
-    if path.startswith("root['") and path.endswith("']"):
-        return path[6:-2]
-    if path.startswith("root."):
-        return path[5:]
-    return path
+    path = path.replace("root", "").strip(".")
+    path = path.replace("['", ".").replace("']", "")
+    path = path.replace("][", ".")
+    return path.strip(".")
 
 
 def compute_diff(old_data, new_data):
+    changes = {}
+
+    # Create case - show ALL fields
     if not old_data:
         flat_new = flatten_dict(new_data)
         return {clean_path(k): [None, v] for k, v in flat_new.items()}
 
+    # Update case - use DeepDiff with verbose
     diff = DeepDiff(old_data, new_data, ignore_order=True, verbose_level=2)
 
-    changes = {}
+    # Added
+    for path in diff.get('dictionary_item_added', []):
+        value = new_data
+        keys = path.split("']['") if "']['" in path else path.split(".")
+        for k in keys:
+            k = k.strip("['']")
+            value = value.get(k, {})
+        changes[clean_path(path)] = [None, value]
 
-    # Added fields
-    if 'values_added' in diff:
-        for path, value in diff['values_added'].items():
-            changes[clean_path(path)] = [None, value]
+    for path, value in diff.get('values_added', {}).items():
+        changes[clean_path(path)] = [None, value]
 
-    if 'dictionary_item_added' in diff:
-        for path, value in diff['dictionary_item_added'].items():
-            changes[clean_path(path)] = [None, value]
+    # Removed
+    for path in diff.get('dictionary_item_removed', []):
+        value = old_data
+        keys = path.split("']['") if "']['" in path else path.split(".")
+        for k in keys:
+            k = k.strip("['']")
+            value = value.get(k, {})
+        changes[clean_path(path)] = [value, None]
 
-    # Removed fields - yeh important fix hai
-    if 'values_removed' in diff:
-        for path, value in diff['values_removed'].items():
-            changes[clean_path(path)] = [value, None]
+    for path, value in diff.get('values_removed', {}).items():
+        changes[clean_path(path)] = [value, None]
 
-    if 'dictionary_item_removed' in diff:
-        for path, value in diff['dictionary_item_removed'].items():
-            changes[clean_path(path)] = [value, None]
+    # List changes (added/removed items in arrays)
+    for path, value in diff.get('iterable_item_added', {}).items():
+        changes[clean_path(path)] = [None, value]
+
+    for path, value in diff.get('iterable_item_removed', {}).items():
+        changes[clean_path(path)] = [value, None]
 
     # Changed values
-    if 'values_changed' in diff:
-        for path, change in diff['values_changed'].items():
-            changes[clean_path(path)] = [change['old_value'], change['new_value']]
+    for path, change in diff.get('values_changed', {}).items():
+        changes[clean_path(path)] = [change['old_value'], change['new_value']]
 
     # Type changes
-    if 'type_changes' in diff:
-        for path, change in diff['type_changes'].items():
-            changes[clean_path(path)] = [change['old_value'], change['new_value']]
+    for path, change in diff.get('type_changes', {}).items():
+        changes[clean_path(path)] = [change['old_value'], change['new_value']]
 
     return changes
 
