@@ -1,139 +1,13 @@
 import json
 import uuid
+from typing import Dict, Any
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 from django.utils import timezone
-from deepdiff import DeepDiff
+from pydantic import ValidationError
 from .models import AuditHistory
-
-
-def flatten_dict(d, parent_key='', sep='.'):
-    items = []
-    for k, v in d.items():
-        new_key = f"{parent_key}{sep}{k}" if parent_key else k
-        if isinstance(v, dict):
-            items.extend(flatten_dict(v, new_key, sep=sep).items())
-        else:
-            items.append((new_key, v))
-    return dict(items)
-
-
-def clean_path(path):
-    path = path.replace("root", "").strip(".")
-    path = path.replace("['", ".").replace("']", "")
-    path = path.replace("][", ".")
-    return path.strip(".")
-
-
-def compute_diff(old_data, new_data):
-    changes = {}
-
-    # Create case - show ALL fields
-    if not old_data:
-        flat_new = flatten_dict(new_data)
-        return {clean_path(k): [None, v] for k, v in flat_new.items()}
-
-    # Update case - use DeepDiff with verbose
-    diff = DeepDiff(old_data, new_data, ignore_order=True, verbose_level=2)
-
-    # Added
-    for path in diff.get('dictionary_item_added', []):
-        value = new_data
-        keys = path.split("']['") if "']['" in path else path.split(".")
-        for k in keys:
-            k = k.strip("['']")
-            value = value.get(k, {})
-        changes[clean_path(path)] = [None, value]
-
-    for path, value in diff.get('values_added', {}).items():
-        changes[clean_path(path)] = [None, value]
-
-    # Removed
-    for path in diff.get('dictionary_item_removed', []):
-        value = old_data
-        keys = path.split("']['") if "']['" in path else path.split(".")
-        for k in keys:
-            k = k.strip("['']")
-            value = value.get(k, {})
-        changes[clean_path(path)] = [value, None]
-
-    for path, value in diff.get('values_removed', {}).items():
-        changes[clean_path(path)] = [value, None]
-
-    # List changes (added/removed items in arrays)
-    for path, value in diff.get('iterable_item_added', {}).items():
-        changes[clean_path(path)] = [None, value]
-
-    for path, value in diff.get('iterable_item_removed', {}).items():
-        changes[clean_path(path)] = [value, None]
-
-    # Changed values
-    for path, change in diff.get('values_changed', {}).items():
-        changes[clean_path(path)] = [change['old_value'], change['new_value']]
-
-    # Type changes
-    for path, change in diff.get('type_changes', {}).items():
-        changes[clean_path(path)] = [change['old_value'], change['new_value']]
-
-    return changes
-
-
-def generate_summary(changes):
-    if not changes:
-        return "No changes detected"
-
-    parts = []
-    for field_path, (old, new) in changes.items():
-        field = clean_path(field_path).replace('.', ' → ')
-        if old is None:
-            parts.append(f"{field} set to {new}")
-        elif new is None:
-            parts.append(f"{field} removed (was {old})")
-        else:
-            parts.append(f"{field} changed from {old} to {new}")
-
-    return " and ".join(parts).capitalize()
-
-
-def find_actor_id(data):
-    candidates = [
-        'actor.id', 'actor_id', 'user_id', 'user', 'username',
-        'created_by', 'updated_by', 'by', 'author'
-    ]
-    for key in candidates:
-        keys = key.split('.')
-        value = data
-        for k in keys:
-            value = value.get(k, {})
-        if value and isinstance(value, (str, int)):
-            return str(value)
-    return "unknown"
-
-
-def find_resource_id(data):
-    for key in ['id', 'object_id', 'entity_id', 'resource_id', 'record_id', 'task_id']:
-        if key in data:
-            return str(data[key])
-    return str(uuid.uuid4())
-
-
-def find_resource_type(data):
-    return "unknown"
-
-
-verb_map = {
-    "create": "created",
-    "created": "created",
-    "add": "created",
-    "update": "updated",
-    "updated": "updated",
-    "edit": "updated",
-    "change": "updated",
-    "delete": "deleted",
-    "deleted": "deleted",
-    "remove": "deleted"
-}
-
+from .types import FlatActivity, ActivityWithObject, ActivityWithResource
+from .audit_utils import  compute_diff ,generate_summary, verb_map
 
 @csrf_exempt
 def activity_stream(request):
@@ -141,76 +15,140 @@ def activity_stream(request):
         return JsonResponse({"error": "Only POST allowed"}, status=405)
 
     try:
-        data = json.loads(request.body)
+        raw_data = json.loads(request.body)
     except json.JSONDecodeError:
         return JsonResponse({"error": "Invalid JSON"}, status=400)
 
-    items = data if isinstance(data, list) else [data]
-
+    items = raw_data if isinstance(raw_data, list) else [raw_data]
     result = []
 
     for payload in items:
-        actor_id = find_actor_id(payload)
-        resource_id = find_resource_id(payload)
-        resource_type = find_resource_type(payload)
+        actor_id = "unknown"
+        actor_full = {"id": "unknown"}
+        res_id = str(uuid.uuid4())
+        res_type = "unknown"
+        data: Dict[str, Any] = {}
 
-        verb_raw = (
-            payload.get("verb") or
-            payload.get("action") or
-            payload.get("event") or
-            payload.get("operation") or
-            "updated"
-        ).lower().strip()
+        try:
+            # Structured to object
+            if "object" in payload and isinstance(payload["object"], dict) and "type" in payload["object"]:
+                validated = ActivityWithObject.model_validate(payload)
+                actor_full = validated.actor.model_dump(exclude_none=True)
+                actor_id = validated.actor.id
+                res_id = validated.object.id
+                res_type = validated.object.type
+                data = payload["object"].copy()
+                data.pop("id", None)
+                data.pop("type", None)
 
+            # Structured to resource
+            elif "resource" in payload and isinstance(payload["resource"], dict) and "type" in payload["resource"]:
+                validated = ActivityWithResource.model_validate(payload)
+                actor_full = validated.actor.model_dump(exclude_none=True)
+                actor_id = validated.actor.id
+                res_id = validated.resource.id
+                res_type = validated.resource.type
+                data = payload["resource"].copy()
+                data.pop("id", None)
+                data.pop("type", None)
+
+            # Flat / mixed style
+            else:
+                flat = FlatActivity.model_validate(payload)
+
+                # Actor
+                if flat.actor:
+                    actor_full = flat.actor.model_dump(exclude_none=True)
+                    actor_id = flat.actor.id
+                elif flat.actor_id:
+                    actor_id = str(flat.actor_id)
+                    actor_full = {"id": actor_id}
+                elif "actor" in payload and isinstance(payload["actor"], dict) and "id" in payload["actor"]:
+                    actor_full = payload["actor"].copy()
+                    actor_id = str(payload["actor"]["id"])
+                else:
+                    actor_id = payload.get("user_id") or payload.get("created_by") or "unknown"
+                    actor_full = {"id": actor_id}
+
+                # ID & Type
+                if flat.id:
+                    res_id = str(flat.id)
+                if flat.type:
+                    res_type = flat.type
+
+                # Prefer nested object for data + id + type
+                if "object" in payload and isinstance(payload["object"], dict):
+                    obj = payload["object"]
+                    if "id" in obj and not flat.id:
+                        res_id = str(obj["id"])
+                    if obj.get("type") and res_type == "unknown":
+                        res_type = str(obj["type"])
+                    data = obj.copy()
+                    data.pop("id", None)
+                    data.pop("type", None)
+
+                # Last fallback — root level (excluding metadata)
+                if not data:
+                    exclude = {
+                        "verb", "action", "event", "operation",
+                        "actor", "actor_id", "user_id", "by", "created_by", "updated_by",
+                        "id", "type", "object", "resource", "context", "description",
+                        "object_type", "resource_type"
+                    }
+                    data = {k: v for k, v in payload.items() if k not in exclude}
+
+        except ValidationError as e:
+            errors = [
+                {"field": ".".join(map(str, err['loc'])), "message": err['msg']}
+                for err in e.errors(include_url=False, include_input=False)
+            ]
+            return JsonResponse({"error": "Validation failed", "details": errors}, status=422)
+
+        # Enforce type for non-delete operations
+        verb_raw = payload.get("verb", "updated").lower().strip()
         verb = verb_map.get(verb_raw, "updated")
 
-        exclude = {
-            "verb", "action", "event", "operation",
-            "actor", "actor_id", "user_id", "user", "username",
-            "id", "object_id", "entity_id", "resource_id", "task_id"
-        }
-        fields = {k: v for k, v in payload.items() if k not in exclude}
+        if res_type == "unknown" and verb not in ["deleted", "delete"]:
+            return JsonResponse({
+                "error": "Resource type is required for create/update",
+                "details": [{
+                    "field": "type / object.type / resource.type / object_type / resource_type",
+                    "message": "Required and cannot be empty"
+                }]
+            }, status=422)
 
-        if "object" in payload and isinstance(payload["object"], dict):
-            fields.update(payload["object"])
-        if "data" in payload and isinstance(payload["data"], dict):
-            fields.update(payload["data"])
-
-        last_entry = AuditHistory.objects.filter(
-            resource_type=resource_type,
-            resource_id=resource_id
+        # Diff & save
+        last = AuditHistory.objects.filter(
+            resource_type=res_type,
+            resource_id=res_id
         ).order_by('-version').first()
 
-        old_fields = last_entry.full_fields_after if last_entry else {}
-
-        changes = compute_diff(old_fields, fields)
-
+        old = last.full_fields_after if last else {}
+        changes = compute_diff(old, data)
         summary = generate_summary(changes)
-
         now = timezone.now()
 
         AuditHistory.objects.create(
-            resource_type=resource_type,
-            resource_id=resource_id,
-            version=(last_entry.version + 1) if last_entry else 1,
+            resource_type=res_type,
+            resource_id=res_id,
+            version=(last.version + 1) if last else 1,
             operation=verb,
-            actor={"id": actor_id},
+            actor=actor_full,
             actor_id=actor_id,
             changes=changes,
             summary=summary,
-            full_fields_after=fields,
+            full_fields_after=data,
             timestamp=now,
         )
 
+        # Response
         result.append({
             "id": str(uuid.uuid4()),
-            "actor": {
-                "id": actor_id
-            },
+            "actor": actor_full,
             "verb": verb,
             "object": {
-                "id": resource_id,
-                "type": resource_type,
+                "id": res_id,
+                "type": res_type,
                 "fields": changes
             },
             "description": summary,

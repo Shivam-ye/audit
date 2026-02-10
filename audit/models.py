@@ -7,7 +7,7 @@ class AuditHistory(models.Model):
     resource_type     = models.CharField(max_length=100)
     resource_id       = models.CharField(max_length=255)
     version           = models.PositiveIntegerField()
-    operation         = models.CharField(max_length=20)  # create / update / delete
+    operation         = models.CharField(max_length=20)  
     actor_id          = models.CharField(max_length=255, blank=True, null=True)
     actor             = models.JSONField(default=dict, blank=True)
     timestamp         = models.DateTimeField(default=timezone.now)
@@ -23,7 +23,7 @@ class AuditHistory(models.Model):
         ]
         unique_together = [['resource_type', 'resource_id', 'version']]
         ordering = ['-timestamp']
-        db_table = 'audit_audithistory'  # explicit table name (optional)
+        db_table = 'audit_audithistory' 
 
     def __str__(self):
         return f"{self.resource_type} {self.resource_id} v{self.version}"
