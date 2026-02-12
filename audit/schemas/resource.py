@@ -1,4 +1,5 @@
 from pydantic import BaseModel, Field
+import uuid
 
 class ResourceRef(BaseModel):
     id: str = Field(..., min_length=1)
