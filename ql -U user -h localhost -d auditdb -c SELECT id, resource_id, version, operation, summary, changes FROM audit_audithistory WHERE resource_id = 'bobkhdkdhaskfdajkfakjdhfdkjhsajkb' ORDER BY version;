@@ -1,7 +1,0 @@
- id | resource_type |            resource_id            | version | operation | actor_id |      actor      |           timestamp           |               event_id               |               changes                |           summary            |      full_fields_after       
-----+---------------+-----------------------------------+---------+-----------+----------+-----------------+-------------------------------+--------------------------------------+--------------------------------------+------------------------------+------------------------------
- 13 | task 1        | sdakfdajkfakjdhfdkjhsajkb         |       1 | created   | bobby    | {"id": "bobby"} | 2026-02-06 06:42:09.062923+00 | ba8ba044-929f-45d8-ab77-b59a0164605b | {"title": [null, "changed 1 title"]} | Title set to changed 1 title | {"title": "changed 1 title"}
- 14 | task 1        | fdajkfakjdhfdkjhsajkb             |       1 | created   | bobby    | {"id": "bobby"} | 2026-02-06 06:47:16.044398+00 | a20e46a9-33b3-45cc-940f-5788c4fbcef4 | {"title": [null, "changed 1 title"]} | Title set to changed 1 title | {"title": "changed 1 title"}
- 15 | task 1        | bobkhdkdhaskfdajkfakjdhfdkjhsajkb |       1 | created   | bobby    | {"id": "bobby"} | 2026-02-06 06:47:23.394868+00 | 3ad42eca-7060-4a0a-8693-b20eb492ea07 | {"title": [null, "changed 1 title"]} | Title set to changed 1 title | {"title": "changed 1 title"}
-(3 rows)
-

@@ -6,8 +6,8 @@ from django.views.decorators.csrf import csrf_exempt
 from django.utils import timezone
 from pydantic import ValidationError
 from .models import AuditHistory
-from .types import FlatActivity, ActivityWithObject, ActivityWithResource
-from .audit_utils import  compute_diff ,generate_summary, verb_map
+from .schemas import FlatActivity, ActivityWithObject, ActivityWithResource
+from .services.audit_service import  compute_diff ,generate_summary, verb_map
 
 @csrf_exempt
 def activity_stream(request):

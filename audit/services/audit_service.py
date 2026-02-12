@@ -1,14 +1,6 @@
-import json
-import uuid
-from typing import Dict, Any
-from django.http import JsonResponse
+from typing import Dict
 from django.views.decorators.csrf import csrf_exempt
-from django.utils import timezone
-from pydantic import ValidationError
 from deepdiff import DeepDiff
-from .models import AuditHistory
-from .types import FlatActivity, ActivityWithObject, ActivityWithResource 
-
 
 # Utility Functions
 def flatten_dict(d: Dict, parent_key: str = '', sep: str = '.') -> Dict:
@@ -72,7 +64,6 @@ def compute_diff(old_data: Dict, new_data: Dict) -> Dict[str, list]:
 
     return changes
 
-
 def generate_summary(changes: Dict[str, list]) -> str:
     if not changes:
         return "No changes detected."
@@ -94,4 +85,3 @@ verb_map = {
     "update": "updated", "updated": "updated", "edit": "updated", "change": "updated",
     "delete": "deleted", "deleted": "deleted", "remove": "deleted",
 }
-

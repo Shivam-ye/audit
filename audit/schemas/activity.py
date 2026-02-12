@@ -1,15 +1,7 @@
 from pydantic import BaseModel, Field, AliasChoices, field_validator
+from .actor import Actor
+from .resource import ResourceRef
 from typing import Dict, Any, Optional
-
-class Actor(BaseModel):
-    id: str = Field(..., min_length=1)
-    # allow extra fields like name, email etc.
-    model_config = {"extra": "allow"}
-
-class ResourceRef(BaseModel):
-    id: str = Field(..., min_length=1)
-    type: str = Field(..., min_length=1)
-    model_config = {"extra": "allow"}
 
 class ActivityWithObject(BaseModel):
     verb: str = Field(default="updated")
