@@ -2,6 +2,8 @@ import uuid
 from typing import Dict, Any
 from ..schemas import FlatActivity
 
+    # ResourceExtractor is an audit activity parser that extracts resource information from various payload formats 
+    # and converts them into a standardized tuple format.
 class ResourceExtractor:
 
     @staticmethod
@@ -9,7 +11,6 @@ class ResourceExtractor:
         res_id = str(uuid.uuid4())
         res_type = "unknown"
         data: Dict[str, Any] = {}
-
         if payload_type == "object":
             res_id = validated.object.id
             res_type = validated.object.type

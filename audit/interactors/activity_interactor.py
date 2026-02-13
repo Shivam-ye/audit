@@ -14,7 +14,7 @@ class ActivityInteractor:
         result = []
 
         for payload in payloads:
-            # Validate
+            # Validate payload
             validated, payload_type = PayloadValidator.validate(payload)
 
             # Extract actor

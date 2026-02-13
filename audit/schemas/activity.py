@@ -3,6 +3,7 @@ from .actor import Actor
 from .resource import ResourceRef
 from typing import Dict, Any, Optional
 
+# Schema for activity events with a nested 'object' field (e.g., XAPI-style)
 class ActivityWithObject(BaseModel):
     verb: str = Field(default="updated")
     actor: Actor
@@ -13,6 +14,7 @@ class ActivityWithObject(BaseModel):
         "extra": "allow"
     }
 
+# Schema for activity events with a nested 'resource' field (custom format)
 class ActivityWithResource(BaseModel):
     verb: str = Field(default="updated")
     actor: Actor
@@ -23,12 +25,13 @@ class ActivityWithResource(BaseModel):
         "extra": "allow"
     }
 
+# Schema for flattened/normalized activity events with all fields at top level
 class FlatActivity(BaseModel):
     verb: str = Field(default="updated")
     actor: Optional[Actor] = None
     actor_id: Optional[str] = None
     
-    # Improved aliases for type
+    # Improved aliases for type 
     type: Optional[str] = Field(
         None,
         alias=AliasChoices("type", "resource_type", "object_type", "object.type")
@@ -48,6 +51,7 @@ class FlatActivity(BaseModel):
         "extra": "allow"
     }
 
+    # Converts actor from string ID to Actor dict, or passes through existing dict
     @field_validator('actor', mode='before')
     @classmethod
     def normalize_actor(cls, v):
