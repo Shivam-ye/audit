@@ -1,0 +1,15 @@
+{
+    "verb": "update",
+    "actor": {
+        "name": "shivam's"
+    },
+    "object_type": "super user",
+    "object": {
+        "id": "user-451",
+        "username": "new",
+        "age":"21",
+        "date": "01/01/2004",
+        "title":"objective2",
+        "email": "shivam.new@example.com"
+    }
+}
