@@ -1,23 +1,11 @@
-from typing import Dict, Any
-from django.utils import timezone
-import uuid
+from ..services.response_service import ResponseService
+
 
 class ResponseBuilder:
+    """Thin wrapper - delegates to ResponseService"""
 
     @staticmethod
-    def build(actor_full: dict, res_id: str, res_type: str, changes: dict, summary: str) -> dict:
-        now = timezone.now()
-        return {
-            "id": str(uuid.uuid4()),
-            "actor": actor_full,
-            "verb": "updated",  # You can modify to pass actual verb if needed
-            "object": {
-                "id": res_id,
-                "type": res_type,
-                "fields": changes
-            },
-            "description": summary,
-            "created_at": now.isoformat(),
-            "updated_at": now.isoformat()
-        }
+    def build(actor_full, res_id, res_type, changes, summary):
+        """Delegate to ResponseService"""
+        return ResponseService.build_response(actor_full, res_id, res_type, changes, summary)
 

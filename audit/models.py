@@ -2,7 +2,6 @@ from django.db import models
 import uuid
 from django.utils import timezone
 
-
 class AuditHistory(models.Model):
     resource_type     = models.CharField(max_length=100)
     resource_id       = models.CharField(max_length=255)

@@ -1,0 +1,17 @@
+{
+    "verb": "create",
+    "actor": {
+        "id":"12",
+        "name": "shivam's"
+    },
+    "object_type": "user123",
+    "object": {
+        "id": "user-1",
+        "username": "new user 123 ",
+        "age":"21",
+        "s.name":"kumar",
+        "date": "01/01/2026",
+        "title":"objective2",
+        "email": "shivam.new@example.com"
+    }
+}

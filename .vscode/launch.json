@@ -1,0 +1,93 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "Django: Runserver",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "${workspaceFolder}/manage.py",
+            "args": [
+                "runserver",
+                "0.0.0.0:8002",
+                "--noreload"
+            ],
+            "django": true,
+            "cwd": "${workspaceFolder}",
+            "envFile": "${workspaceFolder}/.env.local",
+            "console": "integratedTerminal",
+            "justMyCode": false
+        },
+        {
+            "name": "Run Celery Worker (Debug)",
+            "type": "debugpy",
+            "request": "launch",
+            "module": "celery",
+            "args": [
+                "-A",
+                "auditHistory",
+                "worker",
+                "-l",
+                "info",
+                "-P",
+                "solo",
+                "--concurrency",
+                "1",
+                "-E",
+                "-Q",
+                "audit_log_queue"
+            ],
+            "console": "integratedTerminal",
+            // "cwd": "${workspaceFolder}",
+            "justMyCode": false,
+            // "envFile": "${workspaceFolder}/.env.local",
+            // "env": {
+            //     "PYTHONUNBUFFERED": "1",
+            //     "PYTHONPATH": "${workspaceFolder}"
+            // }
+        },
+        {
+            "name": "run single test",
+            "type": "debugpy",
+            "request": "launch",
+            "module": "pytest",
+            "args": [
+                "tests\\test_tasks.py::test_payload_push_task_runs_successfully"
+            ],
+            "envFile": "${workspaceFolder}/.env.local",
+            "django": true,
+            "justMyCode": false,
+            // "pythonPath": "${command:python.interpreterPath}",
+            // "cwd": "c:\\Users\\Devashish\\Desktop\\Workspace\\KOMP\\komp-eor-employee"
+        },
+        {
+            "name": "run bank verification test",
+            "type": "debugpy",
+            "request": "launch",
+            "module": "pytest",
+            "args": [
+                "tests/service/test_bank_verfication_service.py::TestBankVerificationService::test_verify_bank_details_success",
+                "-v"
+            ],
+            "env": {
+                "DJANGO_SETTINGS_MODULE": "tests.test_settings"
+            },
+            "django": true,
+            "justMyCode": false,
+            "cwd": "${workspaceFolder}"
+    },
+    {
+        "name": "Django: Management Command (Debug)",
+        "type": "debugpy",
+        "request": "launch",
+        "program": "${workspaceFolder}/manage.py",
+        "args": [
+            "verify_bank_account"
+        ],
+        "django": true,
+        "cwd": "${workspaceFolder}",
+        "envFile": "${workspaceFolder}/.env.local",
+        "console": "integratedTerminal",
+        "justMyCode": true
+}
+    ]
+}
