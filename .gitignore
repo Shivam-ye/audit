@@ -52,7 +52,7 @@ coverage/
 # IDEs & editors
 .idea/              # PyCharm
 *.iml
-.vscode/            # VS Code
+.vscode/*            # VS Code
 *.code-workspace
 !.vscode/settings.json
 !.vscode/tasks.json
