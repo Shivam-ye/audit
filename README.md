@@ -234,7 +234,7 @@ POST /audit/activity-stream/
 
 1. Clone repository
    ```bash
-   git clone <repo-url>
+   git clone https://github.com/shivam-ye/audit
    cd audit-history
    ```
 
