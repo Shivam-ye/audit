@@ -3,6 +3,20 @@ from .actor import Actor
 from .resource import ResourceRef
 from typing import Dict, Any, Optional
 
+
+# Schema for the new wrapped payload format
+class AuditLogsPayload(BaseModel):
+    """Schema for wrapped audit_logs payload format"""
+    id: str = Field(..., description="UUID for the audit log entry")
+    type: str = Field(default="audit_logs", description="Type identifier")
+    payload: Dict[str, Any] = Field(default_factory=dict, description="The actual audit payload")
+    
+    model_config = {
+        "populate_by_name": True,
+        "extra": "allow"
+    }
+
+
 # Schema for activity events with a nested 'object' field (e.g., XAPI-style)
 class ActivityWithObject(BaseModel):
     verb: str = Field(default="updated")

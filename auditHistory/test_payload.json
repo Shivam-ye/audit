@@ -1,17 +1,25 @@
 {
-    "verb": "create",
-    "actor": {
-        "id":"12",
-        "name": "shivam's"
-    },
-    "object_type": "user123",
-    "object": {
-        "id": "user-1",
-        "username": "new user 123 ",
-        "age":"21",
-        "s.name":"kumar",
-        "date": "01/01/2026",
-        "title":"objective2",
-        "email": "shivam.new@example.com"
+    "id": "550e8400-e29b-41d4-a716-446655440000",
+    "type": "audit_logs",
+    "payload": {
+        "verb": "update",
+        "actor": {
+            "id": "13",
+            "name": "yeshu"
+        },
+        "object_type": "payment",
+        "object": {
+            "id": "pay-1",
+            "payment_id": "payment-123",
+            "amount": "1500",
+            "currency": "INR",
+            "payment_method": "UPI",
+            "status": "success",
+            "transaction_date": "01/01/2026",
+            "payer_name": "Shivam Kumar",
+            "payer_email": "shivam.new@example.com",
+            "receiver_name": "ABC Store",
+            "description": "Payment for order #123"
+        }
     }
 }

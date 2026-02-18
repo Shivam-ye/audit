@@ -1,25 +1,30 @@
-# Refactoring Plan: Move Business Logic from Interactors to Services
+# TODO: Implement New Payload Format and Celery Task Structure
 
-## Objective
-Keep interactors for orchestration only, move all business logic to services.
+## Phase 1: Update Schemas - COMPLETED
+- [x] 1.1 Update `audit/schemas/activity.py` - Add new `AuditLogsPayload` schema
+- [x] 1.2 Update `audit/schemas/__init__.py` - Export new schema
 
-## Steps to Complete:
+## Phase 2: Update Validation Service - COMPLETED
+- [x] 2.1 Update `audit/services/validation_service.py` - Handle new wrapped format
 
-### Step 1: Create new service files
-- [x] 1. Create `validation_service.py` - move validation logic from PayloadValidator
-- [x] 2. Create `actor_service.py` - move actor extraction logic from ActorExtractor
-- [x] 3. Create `resource_service.py` - move resource extraction logic from ResourceExtractor
-- [x] 4. Create `history_service.py` - move database operations (AuditHistory create/filter)
-- [x] 5. Create `response_service.py` - move response building logic from ResponseBuilder
+## Phase 3: Update Activity Interactor - COMPLETED
+- [x] 3.1 Update `audit/interactors/activity_interactor.py` - Support both formats
 
-### Step 2: Refactor interactor files
-- [x] 6. Refactor `activity_interactor.py` - only coordinate between services
-- [x] 7. Update `actor_extractor.py` - thin wrapper calling actor_service
-- [x] 8. Update `resource_extractor.py` - thin wrapper calling resource_service
-- [x] 9. Update `payload_validator.py` - thin wrapper calling validation_service
-- [x] 10. Update `response_builder.py` - thin wrapper calling response_service
+## Phase 4: Create Message Model - COMPLETED
+- [x] 4.1 Create `audit/models/message.py` - Message model inheriting from CoreMessageModel
+- [x] 4.2 Create `audit/models/audit_history.py` - Move AuditHistory to models package
+- [x] 4.3 Update `audit/models/__init__.py` - Export models
 
-### Step 3: Testing
-- [x] 11. Verify the application still works correctly
+## Phase 5: Create Celery Configuration - COMPLETED
+- [x] 5.1 Create `audit/enums.py` - Task name and queue enums
+- [x] 5.2 Create `audit/config.py` - Celery app configuration
 
-## Note: Keep existing audit_service.py untouched (has existing logic)
+## Phase 6: Update Celery Tasks - COMPLETED
+- [x] 6.1 Update `audit/tasks.py` - Refactor to follow new Celery pattern
+
+## Phase 7: Update Views - COMPLETED
+- [x] 7.1 Update `audit/views.py` - Handle new payload format
+
+## Phase 8: Testing - COMPLETED
+- [x] 8.1 Update `auditHistory/test_payload.json` - New format example
+

@@ -1,5 +1,5 @@
 import logging
-from typing import List
+from typing import List, Any
 from ..services.audit_service import compute_diff, generate_summary, verb_map
 from ..services.validation_service import ValidationService
 from ..services.actor_service import ActorService
@@ -14,12 +14,13 @@ class ActivityInteractor:
     """Interactor for orchestrating the activity processing flow - only interaction logic"""
 
     @staticmethod
-    def process_payloads(payloads):
+    def process_payloads(payloads, original_payload=None):
         """
         Process payloads - orchestration only, delegates to services.
         
         Args:
             payloads: Single payload dict or list of payload dicts
+            original_payload: Original wrapped payload (for audit_logs type)
             
         Returns:
             List of response dictionaries
@@ -35,15 +36,17 @@ class ActivityInteractor:
             logger.info(f"Validated payload_type: {payload_type}")
             
             # Step 2: Extract actor - delegates to ActorService
-            actor_full, actor_id = ActorService.extract_actor(payload, validated, payload_type)
+            # For audit_logs type, use the inner payload for extraction
+            extract_payload = original_payload if payload_type == "audit_logs" else payload
+            actor_full, actor_id = ActorService.extract_actor(extract_payload, validated, payload_type)
             logger.info(f"Extracted actor_full: {actor_full}, actor_id: {actor_id}")
             
             # Step 3: Extract resource - delegates to ResourceService
-            res_id, res_type, data = ResourceService.extract_resource(payload, validated, payload_type)
+            res_id, res_type, data = ResourceService.extract_resource(extract_payload, validated, payload_type)
             logger.info(f"Extracted res_id: {res_id}, res_type: {res_type}, data: {data}")
             
             # Step 4: Get verb mapping from audit_service
-            verb_raw = payload.get("verb", "updated").lower().strip()
+            verb_raw = extract_payload.get("verb", "updated").lower().strip()
             verb = verb_map.get(verb_raw, "updated")
             logger.info(f"Verb mapped: {verb_raw} -> {verb}")
 

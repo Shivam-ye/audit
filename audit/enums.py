@@ -1,0 +1,13 @@
+from enum import Enum
+
+class CeleryTaskName(str, Enum):
+    """Celery task names for audit processing"""
+    AUDIT_LOG_PROCESS = "audit_log_process"
+    AUDIT_LOGS = "audit_logs"
+
+
+class CeleryTaskQueue(str, Enum):
+    """Celery task queue names"""
+    AUDIT_LOG_QUEUE = "audit_log_queue"
+    DEFAULT = "default"
+
