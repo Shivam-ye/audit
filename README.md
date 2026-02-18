@@ -11,6 +11,7 @@ This service validates activity data using **Pydantic**, processes business logi
   - Object style
   - Resource style
   - Flat style
+  - **Wrapped format** (new): `{"id": "uuid", "type": "audit_logs", "payload": {...}}`
 - Pydantic-based validation
 - Modular architecture (Service Layer pattern)
 - Automatic versioning of resources
@@ -18,6 +19,9 @@ This service validates activity data using **Pydantic**, processes business logi
 - Summary generation
 - DRF ViewSet-based API
 - Fully testable structure
+- **Async processing via Celery**
+- **Message queue for tracking processing status**
+- **Integration with tools_box for worker utilities**
 
 ## Project Structure
 
@@ -29,7 +33,7 @@ audit/
 │   ├── payload_validator.py        # Thin wrapper → ValidationService
 │   ├── actor_extractor.py          # Thin wrapper → ActorService
 │   ├── resource_extractor.py       # Thin wrapper → ResourceService
-│   └── response_builder.py         # Thin wrapper → ResponseService
+│   └── response_builder.py          # Thin wrapper → ResponseService
 │
 ├── services/                       # Business logic layer
 │   ├── audit_service.py            # Diff computation, summary generation, verb mapping
@@ -39,15 +43,22 @@ audit/
 │   ├── history_service.py          # Database operations (AuditHistory CRUD)
 │   └── response_service.py         # Response building logic
 │
+├── models/                         # Database models
+│   ├── __init__.py
+│   ├── audit_history.py            # AuditHistory model - stores audit records
+│   └── message.py                 # Message model - tracks async processing
+│
 ├── schemas/                        # Pydantic models / validation schemas
 │   ├── activity.py
 │   ├── actor.py
 │   └── resource.py
 │
-├── models.py                       # Django model: AuditHistory
+├── tasks.py                        # Celery tasks for async processing
+├── config.py                       # Celery configuration
+├── enums.py                        # Celery task names and queue definitions
+├── errors.py                       # Error classes (from tools_box)
 ├── views.py                        # DRF ViewSet(s)
 ├── urls.py                         # API routes
-├── tasks.py                        # Celery tasks
 └── tests.py                        # Unit/integration tests
 ```
 
@@ -71,13 +82,13 @@ audit/
 │  actor_service.py                       │
 │  resource_service.py                    │
 │  history_service.py                    │
-│  response_service.py                    │
+│  response_service.py                   │
 │  audit_service.py                       │
 └─────────────────┬───────────────────────┘
                   ↓
 ┌─────────────────────────────────────────┐
 │             Models / DB                 │  ← Persistence
-│          AuditHistory                    │
+│     AuditHistory, Message               │
 └─────────────────────────────────────────┘
 ```
 
@@ -86,44 +97,50 @@ audit/
 ### Step-by-Step Processing Flow:
 
 ```
-1. Input: payloads (dict or list)
+1. Input: payloads (dict or list) OR wrapped format {"type": "audit_logs", "payload": {...}}
     ↓
-2. activity_interactor.py (Orchestrator)
+2. tasks.py (Entry Point)
+    - If wrapped format, extract inner payload
+    - Create Message record for tracking (async flow)
     ↓
-3. validation_service.py
+3. activity_interactor.py (Orchestrator)
+    ↓
+4. validation_service.py
    - Validates payload using Pydantic
    - Returns: (validated_obj, payload_type)
     ↓
-4. actor_service.py  
+5. actor_service.py  
    - Extracts actor info from validated payload
    - Returns: (actor_full, actor_id)
     ↓
-5. resource_service.py
+6. resource_service.py
    - Extracts resource info (id, type, data)
    - Returns: (res_id, res_type, data)
     ↓
-6. audit_service.py (verb_map)
+7. audit_service.py (verb_map)
    - Maps verb (e.g., "create" → "created")
     ↓
-7. history_service.py
+8. history_service.py
    - Gets last AuditHistory record
    - Returns: last or None
     ↓
-8. audit_service.py (compute_diff)
+9. audit_service.py (compute_diff)
    - Computes changes between old & new data
    - Returns: changes dict
     ↓
-9. audit_service.py (generate_summary)
+10. audit_service.py (generate_summary)
    - Generates human-readable summary
    - Returns: summary string
     ↓
-10. history_service.py
+11. history_service.py
     - Creates new AuditHistory record in DB
     ↓
-11. response_service.py
+12. response_service.py
     - Builds final API response
     ↓
-12. Return result to caller
+13. Update Message status (completed/failed)
+    ↓
+14. Return result to caller
 ```
 
 ## Services Description
@@ -147,9 +164,41 @@ audit/
 | **resource_extractor.py** | Thin wrapper - delegates to ResourceService |
 | **response_builder.py** | Thin wrapper - delegates to ResponseService |
 
+## Models Description
+
+| Model | Purpose |
+|-------|---------|
+| **AuditHistory** | Stores audit trail records with actor, resource, changes, summary, and versioning |
+| **Message** | Tracks async processing status with fields: id, status, error_message, attempt_counts |
+
+## Celery Tasks
+
+| Task | Purpose |
+|------|---------|
+| **process_audit_log** | Processes audit log payloads asynchronously |
+| **process_activity_task** | Processes activity payloads asynchronously |
+
 ## Supported Payload Types
 
-### 1. Object Style
+### 1. Wrapped Format (New)
+```json
+{
+  "id": "uuid",
+  "type": "audit_logs",
+  "payload": {
+    "actor": {"id": "12", "name": "John"},
+    "verb": "create",
+    "object": {
+      "id": "user-1",
+      "type": "user",
+      "username": "johndoe",
+      "email": "john@example.com"
+    }
+  }
+}
+```
+
+### 2. Object Style
 ```json
 {
   "actor": {"id": "12", "name": "John"},
@@ -163,7 +212,7 @@ audit/
 }
 ```
 
-### 2. Resource Style
+### 3. Resource Style
 ```json
 {
   "actor": {"id": "12", "name": "John"},
@@ -176,7 +225,7 @@ audit/
 }
 ```
 
-### 3. Flat Style
+### 4. Flat Style
 ```json
 {
   "actor_id": "12",
@@ -192,7 +241,33 @@ audit/
 POST /audit/activity-stream/
 ```
 
-### Example Request:
+### Example Request (Wrapped Format):
+```json
+{
+  "id": "550e8400-e29b-41d4-a716-446655440000",
+  "type": "audit_logs",
+  "payload": {
+    "actor": {"id": "15", "name": "shivam"},
+    "verb": "update",
+    "object_type": "payment",
+    "object": {
+      "id": "pay-3",
+      "payment_id": "payment-23",
+      "amount": "1700",
+      "currency": "INR",
+      "payment_method": "UPI",
+      "status": "failed",
+      "transaction_date": "01/01/2026",
+      "payer_name": "Shivam Kumar",
+      "payer_email": "shivam.new@example.com",
+      "receiver_name": "ABC Store",
+      "description": "Payment for order #123"
+    }
+  }
+}
+```
+
+### Example Request (Legacy Format):
 ```json
 {
   "actor": {"id": "12", "name": "shivam"},
@@ -276,6 +351,16 @@ celery -A auditHistory worker -l info
 python manage.py process_activity --file auditHistory/test_payload.json
 ```
 
+## Dependencies
+
+- **Django** - Web framework
+- **Django REST Framework** - REST API
+- **Pydantic** - Data validation
+- **Celery** - Async task queue
+- **Redis** - Message broker for Celery
+- **tools_box** - Worker utilities (CeleryBaseConfig, MessageStatus, CeleryErrors)
+- **deepdiff** - Deep difference computation
+
 ## Design Principles
 
 - **Thin Views** - Views only handle HTTP, no business logic
@@ -290,6 +375,8 @@ python manage.py process_activity --file auditHistory/test_payload.json
   - Database Operations → history_service.py
   - Response Building → response_service.py
   - Diff Computation → audit_service.py
+  - Async Processing → tasks.py
+  - Message Tracking → models/message.py
 
 ## Notes
 
@@ -297,4 +384,7 @@ python manage.py process_activity --file auditHistory/test_payload.json
 - Not configured for production deployment
 - Use proper WSGI/ASGI server (gunicorn + uvicorn, etc.) in production
 - Redis is required for Celery task queue
+- Integration with tools_box for standardized Celery worker configuration
+- Message model enables tracking of async processing status
+- Supports both synchronous (direct API call) and asynchronous (Celery task) processing
 

@@ -1,11 +1,12 @@
-from pydantic import BaseModel, Field, AliasChoices, field_validator
+from tools_box.utils.base_classes.pydantic import BasePydanticModel
+from pydantic import Field, AliasChoices, field_validator
 from .actor import Actor
 from .resource import ResourceRef
 from typing import Dict, Any, Optional
 
 
 # Schema for the new wrapped payload format
-class AuditLogsPayload(BaseModel):
+class AuditLogsPayload(BasePydanticModel):
     """Schema for wrapped audit_logs payload format"""
     id: str = Field(..., description="UUID for the audit log entry")
     type: str = Field(default="audit_logs", description="Type identifier")
@@ -18,7 +19,7 @@ class AuditLogsPayload(BaseModel):
 
 
 # Schema for activity events with a nested 'object' field (e.g., XAPI-style)
-class ActivityWithObject(BaseModel):
+class ActivityWithObject(BasePydanticModel):
     verb: str = Field(default="updated")
     actor: Actor
     object: ResourceRef
@@ -29,7 +30,7 @@ class ActivityWithObject(BaseModel):
     }
 
 # Schema for activity events with a nested 'resource' field (custom format)
-class ActivityWithResource(BaseModel):
+class ActivityWithResource(BasePydanticModel):
     verb: str = Field(default="updated")
     actor: Actor
     resource: ResourceRef
@@ -40,7 +41,7 @@ class ActivityWithResource(BaseModel):
     }
 
 # Schema for flattened/normalized activity events with all fields at top level
-class FlatActivity(BaseModel):
+class FlatActivity(BasePydanticModel):
     verb: str = Field(default="updated")
     actor: Optional[Actor] = None
     actor_id: Optional[str] = None

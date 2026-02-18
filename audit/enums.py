@@ -11,3 +11,9 @@ class CeleryTaskQueue(str, Enum):
     AUDIT_LOG_QUEUE = "audit_log_queue"
     DEFAULT = "default"
 
+
+# Import MessageStatus from tools_box
+from tools_box.workers.enums import MessageStatus
+
+__all__ = ['CeleryTaskName', 'CeleryTaskQueue', 'MessageStatus']
+

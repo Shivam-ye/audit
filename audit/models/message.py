@@ -10,9 +10,12 @@ class CoreMessageModel(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     created_at = models.DateTimeField(default=timezone.now)
     updated_at = models.DateTimeField(auto_now=True)
+    idempotency_key = models.CharField(max_length=255, unique=True, blank=True, null=True)
     data = models.JSONField(default=dict, blank=True)
     status = models.CharField(max_length=50, default="pending")
     error_message = models.TextField(blank=True, null=True)
+    attempt_counts = models.IntegerField(default=0)
+    error = models.JSONField(default=dict, blank=True, null=True)
     
     class Meta:
         abstract = True

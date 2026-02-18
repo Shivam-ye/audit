@@ -1,6 +1,7 @@
 from rest_framework import viewsets, status
 from rest_framework.response import Response
 from .interactors.activity_interactor import ActivityInteractor
+from .models import Message
 
 
 class ActivityStreamViewSet(viewsets.ViewSet):
@@ -15,12 +16,6 @@ class ActivityStreamViewSet(viewsets.ViewSet):
         "payload": { /* existing payload */ }
     }
     
-    Legacy format:
-    {
-        "verb": "create",
-        "actor": {...},
-        "object": {...}
-    }
     """
 
     def create(self, request):
@@ -39,11 +34,28 @@ class ActivityStreamViewSet(viewsets.ViewSet):
             # Ensure payload is a list
             items = data if isinstance(data, list) else [data]
 
+        # Create Message record for tracking
+        db_message = Message.objects.create(
+            data={"original_payload": original_payload, "items": items},
+            status="processing"
+        )
+
         # Delegate processing to interactor
-        result = ActivityInteractor.process_payloads(items, original_payload=original_payload)
+        try:
+            result = ActivityInteractor.process_payloads(items, original_payload=original_payload)
+            
+            # Update message status on success
+            db_message.status = "completed"
+            db_message.save()
 
-        # Check for validation errors returned by the interactor
-        if result and "error" in result[0]:
-            return Response(result[0], status=status.HTTP_422_UNPROCESSABLE_ENTITY)
+            # Check for validation errors returned by the interactor
+            if result and "error" in result[0]:
+                return Response(result[0], status=status.HTTP_422_UNPROCESSABLE_ENTITY)
 
-        return Response(result, status=status.HTTP_201_CREATED)
+            return Response(result, status=status.HTTP_201_CREATED)
+        except Exception as exc:
+            # Update message status on failure
+            db_message.status = "failed"
+            db_message.error_message = str(exc)
+            db_message.save()
+            raise

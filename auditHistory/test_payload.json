@@ -4,17 +4,17 @@
     "payload": {
         "verb": "update",
         "actor": {
-            "id": "13",
-            "name": "yeshu"
+            "id": "15",
+            "name": "y"
         },
         "object_type": "payment",
         "object": {
-            "id": "pay-1",
-            "payment_id": "payment-123",
-            "amount": "1500",
+            "id": "pay-3",
+            "payment_id": "payment-23",
+            "amount": "1700",
             "currency": "INR",
             "payment_method": "UPI",
-            "status": "success",
+            "status": "failed",
             "transaction_date": "01/01/2026",
             "payer_name": "Shivam Kumar",
             "payer_email": "shivam.new@example.com",

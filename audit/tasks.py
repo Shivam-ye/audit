@@ -1,17 +1,59 @@
 from __future__ import annotations
 import logging
-from typing import Optional
+from typing import Optional, Any
 
 from .config import app as celery_app
-from .enums import CeleryTaskName, CeleryTaskQueue
+from .enums import CeleryTaskName, CeleryTaskQueue, MessageStatus
 from .interactors.activity_interactor import ActivityInteractor
 from .models import Message
+from tools_box.workers.config import CeleryBaseConfig as BaseCeleryBaseConfig
+from tools_box.newrelic.metric_client import NewRelicMetricsClientImpl
+
 
 logger = logging.getLogger(__name__)
 
 
+class AuditCeleryBaseConfig(BaseCeleryBaseConfig):
+    """
+    Custom CeleryBaseConfig that uses audit.models.Message instead of apps.payout.models.message.Message
+    """
+    task_registery: dict[str, Any] = {}
+    autoretry_for = (Exception,)
+    retry_backoff = True
+    retry_kwargs = {"max_retries": 3}
+    retryable_status = [MessageStatus.PENDING, MessageStatus.RETRY]
+
+    def __init__(self):
+        self.message_model = Message
+        self.new_relic_client = NewRelicMetricsClientImpl()
+        self.message_key = "db_message"
+        self.logger = logging.getLogger(__name__)
+
+
+def update_message_status(message_id: str, status: str, error_message: str = None):
+    """
+    Helper function to update Message status.
+    
+    Args:
+        message_id: UUID of the message to update
+        status: Status to set ('completed' or 'failed')
+        error_message: Optional error message for failed status
+    """
+    if message_id:
+        try:
+            db_message = Message.objects.get(id=message_id)
+            db_message.status = status
+            if error_message:
+                db_message.error_message = error_message
+            db_message.save()
+            logger.info(f"Updated message {message_id} status to {status}")
+        except Message.DoesNotExist:
+            logger.warning(f"Message {message_id} not found")
+
+
 @celery_app.task(
     bind=True,
+    base=AuditCeleryBaseConfig,
     name=CeleryTaskName.AUDIT_LOGS,
     queue=CeleryTaskQueue.AUDIT_LOG_QUEUE,
     max_retries=2,
@@ -20,7 +62,7 @@ def process_audit_log(
     self,
     payload: dict,
     *,
-    db_message: Optional[Message] = None,
+    message_id: Optional[str] = None,
     **kwargs
 ):
     """
@@ -28,7 +70,7 @@ def process_audit_log(
     
     Args:
         payload: The payload dict containing audit log data
-        db_message: Optional Message model instance for async processing
+        message_id: Optional UUID of the Message record to track status
         **kwargs: Additional keyword arguments
     """
     try:
@@ -53,37 +95,36 @@ def process_audit_log(
         
         logger.info(f"Audit log processing completed successfully. Result: {result}")
         
-        # Update message status if db_message is provided
-        if db_message:
-            db_message.status = "completed"
-            db_message.save()
+        # Update message status if message_id is provided
+        if message_id:
+            update_message_status(message_id, "completed")
         
         return result
         
     except Exception as exc:
         logger.error(f"Audit log processing failed: {exc}")
         
-        # Update message status if db_message is provided
-        if db_message:
-            db_message.status = "failed"
-            db_message.error_message = str(exc)
-            db_message.save()
+        # Update message status if message_id is provided
+        if message_id:
+            update_message_status(message_id, "failed", str(exc))
         
         raise self.retry(exc=exc, countdown=20)
 
 
 @celery_app.task(
     bind=True,
+    base=AuditCeleryBaseConfig,
     name=CeleryTaskName.AUDIT_LOG_PROCESS,
     queue=CeleryTaskQueue.AUDIT_LOG_QUEUE,
     max_retries=2,
 )
-def process_activity_task(self, payload):
+def process_activity_task(self, payload, message_id: Optional[str] = None):
     """
     Celery task to process activity payloads.
     
     Args:
         payload: The payload dict containing activity data (can be wrapped or legacy format)
+        message_id: Optional UUID of the Message record to track status
     """
     try:
         logger.info(f"Processing activity payload")
@@ -106,8 +147,17 @@ def process_activity_task(self, payload):
         result = ActivityInteractor.process_payloads(payloads, original_payload=original_payload)
         
         logger.info(f"Activity processing completed. Result: {result}")
+        
+        # Update message status if message_id is provided
+        if message_id:
+            update_message_status(message_id, "completed")
+        
         return result
     except Exception as exc:
         logger.error(f"Activity processing failed: {exc}")
+        
+        # Update message status if message_id is provided
+        if message_id:
+            update_message_status(message_id, "failed", str(exc))
+        
         raise self.retry(exc=exc, countdown=20)
-

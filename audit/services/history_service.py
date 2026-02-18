@@ -40,7 +40,7 @@ class HistoryService:
             last_version: Previous version number (if exists)
             
         Returns:
-            Created AuditHistory object
+            Created AuditHistory object in the similar form
         """
         version = (last_version + 1) if last_version else 1
         now = timezone.now()

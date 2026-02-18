@@ -7,4 +7,5 @@ app = Celery("auditHistory")
 
 app.config_from_object("django.conf:settings", namespace="CELERY")
 
-app.autodiscover_tasks()
+# Auto-discover tasks in the audit app
+app.autodiscover_tasks(['audit'])

@@ -1,30 +1,28 @@
-# TODO: Implement New Payload Format and Celery Task Structure
+# Implementation Plan: Use tools_box CeleryBaseConfig
 
-## Phase 1: Update Schemas - COMPLETED
-- [x] 1.1 Update `audit/schemas/activity.py` - Add new `AuditLogsPayload` schema
-- [x] 1.2 Update `audit/schemas/__init__.py` - Export new schema
+## Steps to complete:
 
-## Phase 2: Update Validation Service - COMPLETED
-- [x] 2.1 Update `audit/services/validation_service.py` - Handle new wrapped format
+- [x] 1. Update `audit/enums.py` - Add MessageStatus enum from tools_box
+- [x] 2. Create `audit/errors.py` - Add CeleryErrors from tools_box
+- [x] 3. Update `audit/models/message.py` - Add idempotency_key field to Message model
+- [x] 4. Update `audit/tasks.py` - Use tools_box CeleryBaseConfig with custom subclass
 
-## Phase 3: Update Activity Interactor - COMPLETED
-- [x] 3.1 Update `audit/interactors/activity_interactor.py` - Support both formats
+## Implementation Details:
 
-## Phase 4: Create Message Model - COMPLETED
-- [x] 4.1 Create `audit/models/message.py` - Message model inheriting from CoreMessageModel
-- [x] 4.2 Create `audit/models/audit_history.py` - Move AuditHistory to models package
-- [x] 4.3 Update `audit/models/__init__.py` - Export models
+### Step 1: Update audit/enums.py ✅
+Added MessageStatus import from tools_box.workers.enums
 
-## Phase 5: Create Celery Configuration - COMPLETED
-- [x] 5.1 Create `audit/enums.py` - Task name and queue enums
-- [x] 5.2 Create `audit/config.py` - Celery app configuration
+### Step 2: Create audit/errors.py ✅
+Added CeleryErrors import from tools_box.workers.errors
 
-## Phase 6: Update Celery Tasks - COMPLETED
-- [x] 6.1 Update `audit/tasks.py` - Refactor to follow new Celery pattern
+### Step 3: Update audit/models/message.py ✅
+Added required fields:
+- idempotency_key (CharField, unique=True)
+- attempt_counts (IntegerField)
+- error (JSONField)
 
-## Phase 7: Update Views - COMPLETED
-- [x] 7.1 Update `audit/views.py` - Handle new payload format
-
-## Phase 8: Testing - COMPLETED
-- [x] 8.1 Update `auditHistory/test_payload.json` - New format example
+### Step 4: Update audit/tasks.py ✅
+- Created AuditCeleryBaseConfig class that extends tools_box.workers.config.CeleryBaseConfig
+- Overrode __init__ to use audit.models.Message instead of apps.payout.models.message.Message
+- Added necessary imports from tools_box (NewRelicMetricsClientImpl, etc.)
 
